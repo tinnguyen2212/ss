@@ -729,7 +729,8 @@
             return {
                 day: CAN[canDay] + " " + CHI[chiDay],
                 month: getCanChiForMonth(lunarMonth, lunarYear),
-                year: CAN[canYear] + " " + CHI[chiYear]
+                year: CAN[canYear] + " " + CHI[chiYear],
+                chiDay: chiDay
             };
         }
 
@@ -784,44 +785,42 @@
             return kyNhatList.some(item => item.month === lunarMonth && item.day === lunarDay);
         }
 
-        function getSatSuDayChi(lunarMonth) {
-            var dayChi;
-            switch(lunarMonth) {
-                case 1: dayChi = 11; break; // Hợi
-                case 2: dayChi = 0; break;  // Tý
-                case 3: dayChi = 1; break;  // Sửu
-                case 4: dayChi = 2; break;  // Dần
-                case 5: dayChi = 3; break;  // Mão
-                case 6: dayChi = 4; break;  // Thìn
-                case 7: dayChi = 5; break;  // Tỵ
-                case 8: dayChi = 6; break;  // Ngọ
-                case 9: dayChi = 7; break;  // Mùi
-                case 10: dayChi = 8; break; // Thân
-                case 11: dayChi = 9; break; // Dậu
-                case 12: dayChi = 10; break;// Tuất
-                default: dayChi = 0;
-            }
-            return dayChi;
+        // Updated Sát Sư logic based on the new document
+        function getSatSuDayChi(dayChi) {
+            // Map the day Chi to the corresponding Sát Sư hours
+            var satSuHours = [
+                { dayChi: 0, hours: [1, 6] },  // Tý: Sửu, Ngọ
+                { dayChi: 1, hours: [5, 11] }, // Sửu: Tỵ, Hợi
+                { dayChi: 2, hours: [2, 6] },  // Dần: Dần, Ngọ
+                { dayChi: 3, hours: [4, 5] },  // Mão: Thìn, Tỵ
+                { dayChi: 4, hours: [5, 1] },  // Thìn: Tỵ, Sửu
+                { dayChi: 5, hours: [9, 7] },  // Tỵ: Dậu, Mùi
+                { dayChi: 6, hours: [3, 8] },  // Ngọ: Mão, Thân
+                { dayChi: 7, hours: [6, 4] },  // Mùi: Ngọ, Thìn
+                { dayChi: 8, hours: [10, 11] },// Thân: Tuất, Hợi
+                { dayChi: 9, hours: [0, 6] },  // Dậu: Tý, Ngọ
+                { dayChi: 10, hours: [3, 6] }, // Tuất: Mão, Ngọ
+                { dayChi: 11, hours: [4, 3] }  // Hợi: Thìn, Mão
+            ];
+            return satSuHours.find(item => item.dayChi === dayChi);
         }
 
-        function getSatSuHourChi(lunarMonth) {
-            var hourChi;
-            switch(lunarMonth) {
-                case 1: hourChi = 6; break;
-                case 2: hourChi = 11; break;
-                case 3: hourChi = 6; break;
-                case 4: hourChi = 5; break;
-                case 5: hourChi = 1; break;
-                case 6: hourChi = 7; break;
-                case 7: hourChi = 8; break;
-                case 8: hourChi = 4; break;
-                case 9: hourChi = 11; break;
-                case 10: hourChi = 6; break;
-                case 11: hourChi = 6; break;
-                case 12: hourChi = 3; break;
-                default: hourChi = 0;
+        function isSatSuDay(dd, mm, yy) {
+            var canChi = getCanChi(dd, mm, yy);
+            var chiDay = canChi.chiDay;
+            var satSuDayChi = getSatSuDayChi(chiDay);
+            return satSuDayChi !== undefined;
+        }
+
+        function isSatSuHour(hour, dd, mm, yy) {
+            var canChi = getCanChi(dd, mm, yy);
+            var chiDay = canChi.chiDay;
+            var hourChi = getHourChi(hour);
+            var satSuDay = getSatSuDayChi(chiDay);
+            if (satSuDay) {
+                return satSuDay.hours.includes(hourChi);
             }
-            return hourChi;
+            return false;
         }
 
         function getHourRange(hourChi) {
@@ -842,43 +841,34 @@
             }
         }
 
-        function isSatSuDay(dd, mm, yy, lunarMonth) {
-            var jd = jdFromDate(dd, mm, yy);
-            var chiDay = (jd + 1) % 12;
-            var satSuDayChi = getSatSuDayChi(lunarMonth);
-            return chiDay === satSuDayChi;
-        }
-
-        function isSatSuHour(hour, lunarMonth) {
-            var hourChi = getHourChi(hour);
-            var satSuHourChi = getSatSuHourChi(lunarMonth);
-            return hourChi === satSuHourChi;
-        }
-
         function updateSatSuInfo(dd, mm, yy, hour) {
             var lunar = convertSolar2Lunar(dd, mm, yy, 7);
             var lunarDay = lunar[0];
             var lunarMonth = lunar[1];
             
-            var isSatSuDayFlag = isSatSuDay(dd, mm, yy, lunarMonth);
-            var satSuDayChi = getSatSuDayChi(lunarMonth);
+            var canChi = getCanChi(dd, mm, yy);
+            var chiDay = canChi.chiDay;
+            var satSuDay = getSatSuDayChi(chiDay);
             
-            if (isSatSuDayFlag) {
-                document.getElementById('sat-su-day').textContent = "Ngày Sát Sư (" + CHI[satSuDayChi] + ")";
+            if (satSuDay) {
+                document.getElementById('sat-su-day').textContent = "Ngày Sát Sư (" + CHI[chiDay] + ")";
                 document.getElementById('sat-su-day').className = "sat-su-active";
             } else {
                 document.getElementById('sat-su-day').textContent = "Không phải ngày Sát Sư";
                 document.getElementById('sat-su-day').className = "sat-su-inactive";
             }
             
-            var isSatSuHourFlag = isSatSuHour(hour, lunarMonth);
-            var satSuHourChi = getSatSuHourChi(lunarMonth);
-            
+            var isSatSuHourFlag = isSatSuHour(hour, dd, mm, yy);
             if (isSatSuHourFlag) {
-                document.getElementById('sat-su-hour').textContent = "Sát Sư (" + CHI[satSuHourChi] + ": " + getHourRange(satSuHourChi) + ")";
+                var hourChi = getHourChi(hour);
+                document.getElementById('sat-su-hour').textContent = "Sát Sư (" + CHI[hourChi] + ": " + getHourRange(hourChi) + ")";
                 document.getElementById('sat-su-hour').className = "sat-su-active";
             } else {
-                document.getElementById('sat-su-hour').textContent = "Không phải giờ Sát Sư";
+                var satSuHours = satSuDay ? satSuDay.hours : [];
+                var hourText = satSuHours.length > 0 
+                    ? "Sát Sư (" + satSuHours.map(h => CHI[h] + ": " + getHourRange(h)).join(", ") + ")"
+                    : "Không có giờ Sát Sư";
+                document.getElementById('sat-su-hour').textContent = hourText;
                 document.getElementById('sat-su-hour').className = "sat-su-inactive";
             }
         }
@@ -962,7 +952,7 @@
                         
                         var lunar = convertSolar2Lunar(day, mm, yy, 7);
                         
-                        var isSatSuDayFlag = isSatSuDay(day, mm, yy, lunar[1]);
+                        var isSatSuDayFlag = isSatSuDay(day, mm, yy);
                         
                         html += '<div class="calendar-day' + (isToday ? ' today' : '') + (isSatSuDayFlag ? ' sat-su-day' : '') + '">' +
                                 '<div class="solar-day">' + day + '</div>' +
@@ -999,8 +989,10 @@
             var now = new Date();
             document.getElementById('current-time').textContent = formatTime(now);
             
-            var lunar = convertSolar2Lunar(currentViewDate.getDate(), currentViewDate.getMonth() + 1, currentViewDate.getFullYear(), 7);
-            updateSatSuInfo(currentViewDate.getDate(), currentViewDate.getMonth() + 1, currentViewDate.getFullYear(), now.getHours());
+            var dd = currentViewDate.getDate();
+            var mm = currentViewDate.getMonth() + 1;
+            var yy = currentViewDate.getFullYear();
+            updateSatSuInfo(dd, mm, yy, now.getHours());
         }
 
         document.getElementById('solar-to-lunar-tab').addEventListener('click', function() {
@@ -1047,10 +1039,10 @@
                             (lunarLeap == 1 ? " (nhuận)" : "") + " năm " + lunarYear + 
                             " (" + canchi.year + ")";
             
-            var isSatSuDayFlag = isSatSuDay(day, month, year, lunarMonth);
+            var isSatSuDayFlag = isSatSuDay(day, month, year);
             if (isSatSuDayFlag) {
-                var satSuDayChi = getSatSuDayChi(lunarMonth);
-                resultText += "<br><span style='color:red;'>Ngày Sát Sư (" + CHI[satSuDayChi] + ")</span>";
+                var chiDay = canchi.chiDay;
+                resultText += "<br><span style='color:red;'>Ngày Sát Sư (" + CHI[chiDay] + ")</span>";
             }
             
             document.getElementById('result-text').innerHTML = resultText;
