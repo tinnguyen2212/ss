@@ -381,9 +381,9 @@
     <div class="container">
         <div class="today-calendar">
             <div class="month-nav">
-                <button id="prev-day">&lt;</button>
+                <button id="prev-day"><</button>
                 <div class="month-title" id="solar-month-year">THÁNG 3 NĂM 2025</div>
-                <button id="next-day">&gt;</button>
+                <button id="next-day">></button>
             </div>
             <div class="date-display">
                 <div class="date-number" id="current-date">21</div>
@@ -417,7 +417,7 @@
             <div class="time-now" id="current-time">09:57:25</div>
             <div class="sat-su-info">
                 <div class="sat-su-row">
-                    <span class="sat-su-label">Ngày:</span>
+                    🙂<span class="sat-su-label">Ngày:</span>
                     <span id="sat-su-day" class="sat-su-active">Sát Sư (Mão)</span>
                 </div>
                 <div class="sat-su-row">
@@ -434,9 +434,9 @@
 
         <div class="month-calendar">
             <div class="month-header">
-                <button id="prev-month">&lt;</button>
+                <button id="prev-month"><</button>
                 <span id="month-title">LỊCH ÂM THÁNG 3/2025</span>
-                <button id="next-month">&gt;</button>
+                <button id="next-month">></button>
             </div>
             <div class="calendar-grid" id="calendar-headers">
                 <div class="calendar-header">T2</div>
@@ -786,8 +786,29 @@
         }
 
         // Updated Sát Sư logic based on the new document
-        function getSatSuDayChi(dayChi) {
-            // Map the day Chi to the corresponding Sát Sư hours
+        function getSatSuDayChi(lunarMonth) {
+            // From "Ngày La Hầu Theo Từng Tháng"
+            var satSuDayChi;
+            switch(lunarMonth) {
+                case 1: satSuDayChi = 2; break;  // Dần: Hợi
+                case 2: satSuDayChi = 0; break;  // Mão: Tý
+                case 3: satSuDayChi = 1; break;  // Thìn: Sửu
+                case 4: satSuDayChi = 2; break;  // Tỵ: Dần
+                case 5: satSuDayChi = 3; break;  // Ngọ: Mão
+                case 6: satSuDayChi = 4; break;  // Mùi: Thìn
+                case 7: satSuDayChi = 5; break;  // Thân: Tỵ
+                case 8: satSuDayChi = 6; break;  // Dậu: Ngọ
+                case 9: satSuDayChi = 7; break;  // Tuất: Mùi
+                case 10: satSuDayChi = 8; break; // Hợi: Thân
+                case 11: satSuDayChi = 9; break; // Tý: Dậu
+                case 12: satSuDayChi = 10; break;// Sửu: Tuất
+                default: satSuDayChi = -1;
+            }
+            return satSuDayChi;
+        }
+
+        function getSatSuHours(dayChi) {
+            // From "Giờ Sát Sư Hàng Ngày"
             var satSuHours = [
                 { dayChi: 0, hours: [1, 6] },  // Tý: Sửu, Ngọ
                 { dayChi: 1, hours: [5, 11] }, // Sửu: Tỵ, Hợi
@@ -806,17 +827,19 @@
         }
 
         function isSatSuDay(dd, mm, yy) {
+            var lunar = convertSolar2Lunar(dd, mm, yy, 7);
+            var lunarMonth = lunar[1];
             var canChi = getCanChi(dd, mm, yy);
             var chiDay = canChi.chiDay;
-            var satSuDayChi = getSatSuDayChi(chiDay);
-            return satSuDayChi !== undefined;
+            var satSuDayChi = getSatSuDayChi(lunarMonth);
+            return chiDay === satSuDayChi;
         }
 
         function isSatSuHour(hour, dd, mm, yy) {
             var canChi = getCanChi(dd, mm, yy);
             var chiDay = canChi.chiDay;
             var hourChi = getHourChi(hour);
-            var satSuDay = getSatSuDayChi(chiDay);
+            var satSuDay = getSatSuHours(chiDay);
             if (satSuDay) {
                 return satSuDay.hours.includes(hourChi);
             }
@@ -848,9 +871,9 @@
             
             var canChi = getCanChi(dd, mm, yy);
             var chiDay = canChi.chiDay;
-            var satSuDay = getSatSuDayChi(chiDay);
+            var satSuDayChi = getSatSuDayChi(lunarMonth);
             
-            if (satSuDay) {
+            if (chiDay === satSuDayChi) {
                 document.getElementById('sat-su-day').textContent = "Ngày Sát Sư (" + CHI[chiDay] + ")";
                 document.getElementById('sat-su-day').className = "sat-su-active";
             } else {
@@ -858,15 +881,15 @@
                 document.getElementById('sat-su-day').className = "sat-su-inactive";
             }
             
+            var satSuHours = getSatSuHours(chiDay);
             var isSatSuHourFlag = isSatSuHour(hour, dd, mm, yy);
             if (isSatSuHourFlag) {
                 var hourChi = getHourChi(hour);
                 document.getElementById('sat-su-hour').textContent = "Sát Sư (" + CHI[hourChi] + ": " + getHourRange(hourChi) + ")";
                 document.getElementById('sat-su-hour').className = "sat-su-active";
             } else {
-                var satSuHours = satSuDay ? satSuDay.hours : [];
-                var hourText = satSuHours.length > 0 
-                    ? "Sát Sư (" + satSuHours.map(h => CHI[h] + ": " + getHourRange(h)).join(", ") + ")"
+                var hourText = satSuHours.hours.length > 0 
+                    ? "Sát Sư (" + satSuHours.hours.map(h => CHI[h] + ": " + getHourRange(h)).join(", ") + ")"
                     : "Không có giờ Sát Sư";
                 document.getElementById('sat-su-hour').textContent = hourText;
                 document.getElementById('sat-su-hour').className = "sat-su-inactive";
@@ -1055,7 +1078,8 @@
             var year = parseInt(document.getElementById('lunar-year').value);
             var leap = parseInt(document.getElementById('lunar-leap').value);
             
-            if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || day > 30 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+            // Relaxed validation to allow for lunar calendar specifics
+            if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || month < 1 || month > 12 || year < 1900 || year > 2100) {
                 alert("Ngày tháng năm không hợp lệ!");
                 return;
             }
