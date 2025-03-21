@@ -434,45 +434,137 @@
             return i - 1;
         }
 
-        // Hàm chuyển đổi từ dương lịch sang âm lịch
-        function convertSolar2Lunar(dd, mm, yy, timeZone) {
-            var dayNumber = jdFromDate(dd, mm, yy);
-            var k = INT((dayNumber - 2415021.076998695) / 29.530588853);
-            var monthStart = getNewMoonDay(k + 1, timeZone);
-            if (monthStart > dayNumber) {
-                monthStart = getNewMoonDay(k, timeZone);
+        // Hàm chuyển đổi từ dương lịch sang âm lịch (phiên bản sửa lỗi)
+function convertSolar2Lunar(dd, mm, yy, timeZone) {
+    // Chuyển đổi từ ngày dương lịch sang số ngày Julian
+    var dayNumber = jdFromDate(dd, mm, yy);
+    
+    // Tìm tháng 11 âm lịch của năm yy
+    var k = INT((dayNumber - 2415021.076998695) / 29.530588853);
+    var monthStart = getNewMoonDay(k + 1, timeZone);
+    if (monthStart > dayNumber) {
+        monthStart = getNewMoonDay(k, timeZone);
+    }
+    
+    // Tìm ngày bắt đầu tháng 11 âm lịch của năm yy
+    var a11 = getLunarMonth11(yy, timeZone);
+    var b11 = a11;
+    var lunarYear;
+    
+    // Xác định năm âm lịch
+    if (a11 >= monthStart) {
+        lunarYear = yy;
+        a11 = getLunarMonth11(yy - 1, timeZone);
+    } else {
+        lunarYear = yy + 1;
+        b11 = getLunarMonth11(yy + 1, timeZone);
+    }
+    
+    // Số ngày từ đầu tháng tới ngày dd/mm/yy
+    var lunarDay = dayNumber - monthStart + 1;
+    
+    // Tháng (nếu tính từ tháng 11 của năm trước)
+    var diff = INT((monthStart - a11) / 29);
+    var lunarLeap = 0;
+    
+    // Mặc định tháng 11 (tính từ 11 tháng của năm trước đó)
+    var lunarMonth = diff + 11;
+    
+    // Kiểm tra năm nhuận
+    if (b11 - a11 > 365) { // Kiểm tra có năm nhuận không
+        var leapMonthDiff = getLeapMonthOffset(a11, timeZone);
+        if (diff >= leapMonthDiff) {
+            lunarMonth = diff + 10;
+            if (diff == leapMonthDiff) {
+                lunarLeap = 1;
             }
-            var a11 = getLunarMonth11(yy, timeZone);
-            var b11 = a11;
-            var lunarYear;
-            if (a11 >= monthStart) {
-                lunarYear = yy;
-                a11 = getLunarMonth11(yy - 1, timeZone);
-            } else {
-                lunarYear = yy + 1;
-                b11 = getLunarMonth11(yy + 1, timeZone);
-            }
-            var lunarDay = dayNumber - monthStart + 1;
-            var diff = INT((monthStart - a11) / 29);
-            var lunarLeap = 0;
-            var lunarMonth = diff + 11;
-            if (b11 - a11 > 365) {
-                var leapMonthDiff = getLeapMonthOffset(a11, timeZone);
-                if (diff >= leapMonthDiff) {
-                    lunarMonth = diff + 10;
-                    if (diff == leapMonthDiff) {
-                        lunarLeap = 1;
-                    }
-                }
-            }
-            if (lunarMonth > 12) {
-                lunarMonth = lunarMonth - 12;
-            }
-            if (lunarMonth >= 11 && diff < 4) {
-                lunarYear -= 1;
-            }
-            return [lunarDay, lunarMonth, lunarYear, lunarLeap];
         }
+    }
+    
+    // Hiệu chỉnh lại tháng nếu tháng > 12
+    if (lunarMonth > 12) {
+        lunarMonth = lunarMonth - 12;
+    }
+    
+    // Hiệu chỉnh lại năm âm lịch cho một số trường hợp đặc biệt
+    if (lunarMonth >= 11 && diff < 4) {
+        lunarYear -= 1;
+    }
+    
+    return [lunarDay, lunarMonth, lunarYear, lunarLeap];
+}
+
+// Hàm kiểm tra tháng nhuận
+function isLeapMonth(lunarMonth, lunarYear, timeZone) {
+    var a11 = getLunarMonth11(lunarYear - 1, timeZone);
+    var leapMonthDiff = getLeapMonthOffset(a11, timeZone);
+    var leapMonth = (leapMonthDiff - 1) % 12 + 1;
+    return lunarMonth == leapMonth;
+}
+
+// Hàm lấy tên tháng âm lịch
+function getLunarMonthName(lunarMonth) {
+    var monthNames = [
+        "Giêng", "Hai", "Ba", "Tư", "Năm", "Sáu", 
+        "Bảy", "Tám", "Chín", "Mười", "Một", "Chạp"
+    ];
+    return monthNames[lunarMonth - 1];
+}
+
+// Cập nhật hàm updateCurrentDate để hiển thị tên tháng âm lịch
+function updateCurrentDate() {
+    var now = new Date();
+    var day = now.getDate();
+    var month = now.getMonth() + 1;
+    var year = now.getFullYear();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    
+    // Hiển thị ngày dương lịch
+    document.getElementById('date-number').textContent = day;
+    document.getElementById('solar-date').textContent = 'Tháng ' + month + ' Năm ' + year;
+    
+    // Hiển thị giờ hiện tại
+    updateTime();
+    
+    // Xác định thứ trong tuần
+    var weekdays = ['CHỦ NHẬT', 'THỨ 2', 'THỨ 3', 'THỨ 4', 'THỨ 5', 'THỨ 6', 'THỨ 7'];
+    document.getElementById('weekday').textContent = weekdays[now.getDay()];
+    
+    // Chuyển đổi sang ngày âm lịch
+    var timeZone = 7; // Múi giờ Việt Nam (GMT+7)
+    var lunarDate = convertSolar2Lunar(day, month, year, timeZone);
+    var lunarDay = lunarDate[0];
+    var lunarMonth = lunarDate[1];
+    var lunarYear = lunarDate[2];
+    var lunarLeap = lunarDate[3];
+    
+    // Hiển thị ngày âm lịch
+    document.getElementById('lunar-day').textContent = lunarDay;
+    
+    // Hiển thị tên tháng âm lịch (thay vì số tháng)
+    var monthName = getLunarMonthName(lunarMonth);
+    var leapMonthText = lunarLeap === 1 ? " (nhuận)" : "";
+    document.getElementById('lunar-month').textContent = monthName + leapMonthText;
+    
+    // Xác định năm âm lịch
+    var canNam = (lunarYear + 6) % 10;
+    var chiNam = (lunarYear + 8) % 12;
+    document.getElementById('lunar-year').textContent = 'Năm ' + CAN[canNam] + ' ' + CHI[chiNam];
+    
+    // Hiển thị can chi đầy đủ theo định dạng mới
+    var canchiInfo = getCanChi(lunarDay, lunarMonth, lunarYear);
+    document.getElementById('can-chi-ngay').textContent = canchiInfo.ngay;
+    document.getElementById('can-chi-thang').textContent = canchiInfo.thang;
+    document.getElementById('can-chi-nam').textContent = canchiInfo.nam;
+    
+    // Hiển thị canh giờ theo định dạng mới
+    document.getElementById('canh-gio').textContent = CANHGIO(hour, minute);
+    
+    // Hiển thị tiết khí
+    var kinhDo = kinhdo(day, month, year);
+    document.getElementById('tiet-khi').textContent = tietKhi(kinhDo);
+}
 
         // Hàm chuyển đổi từ âm lịch sang dương lịch
         function convertLunar2Solar(lunarDay, lunarMonth, lunarYear, lunarLeap, timeZone) {
