@@ -417,7 +417,7 @@
             <div class="time-now" id="current-time">09:57:25</div>
             <div class="sat-su-info">
                 <div class="sat-su-row">
-                    🙂<span class="sat-su-label">Ngày:</span>
+                    <span class="sat-su-label">Ngày:</span>
                     <span id="sat-su-day" class="sat-su-active">Sát Sư (Mão)</span>
                 </div>
                 <div class="sat-su-row">
@@ -493,7 +493,7 @@
                     <div class="form-group">
                         <label for="lunar-leap">Tháng nhuận:</label>
                         <select id="lunar-leap">
-                            <option value="0">Không</option>
+                            <option value="0">不仅是</option>
                             <option value="1">Có</option>
                         </select>
                     </div>
@@ -677,12 +677,46 @@
                 }
             }
             monthStart = getNewMoonDay(k + off, timeZone);
-            return jdToDate(monthStart + lunarDay - 1);
+            var solarDate = jdToDate(monthStart + lunarDay - 1);
+            return solarDate;
+        }
+
+        // New function to check if a lunar date is valid
+        function isValidLunarDate(lunarDay, lunarMonth, lunarYear, lunarLeap, timeZone) {
+            var k, a11, b11, off, leapOff, leapMonth, monthStart, nextMonthStart;
+            if (lunarMonth < 11) {
+                a11 = getLunarMonth11(lunarYear - 1, timeZone);
+                b11 = getLunarMonth11(lunarYear, timeZone);
+            } else {
+                a11 = getLunarMonth11(lunarYear, timeZone);
+                b11 = getLunarMonth11(lunarYear + 1, timeZone);
+            }
+            k = Math.floor(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+            off = lunarMonth - 11;
+            if (off < 0) {
+                off += 12;
+            }
+            if (b11 - a11 > 365) {
+                leapOff = getLeapMonthOffset(a11, timeZone);
+                leapMonth = leapOff - 2;
+                if (leapMonth < 0) {
+                    leapMonth += 12;
+                }
+                if (lunarLeap != 0 && lunarMonth != leapMonth) {
+                    return false;
+                } else if (lunarLeap != 0 || off >= leapOff) {
+                    off += 1;
+                }
+            }
+            monthStart = getNewMoonDay(k + off, timeZone);
+            nextMonthStart = getNewMoonDay(k + off + 1, timeZone);
+            var daysInMonth = nextMonthStart - monthStart;
+            return lunarDay >= 1 && lunarDay <= daysInMonth;
         }
 
         var LUNAR_MONTH_NAMES = [
             "", "GIÊNG", "HAI", "BA", "TƯ", "NĂM", "SÁU", 
-            "BẢY", "TÁM", "CHÍN", "MƯỜI", "MỘT", "CHẠP"
+            "BẢY", "TÁM "CHÍN", "MƯỜI", "MỘT", "CHẠP"
         ];
 
         function getLunarMonthName(lunarMonth) {
@@ -785,9 +819,7 @@
             return kyNhatList.some(item => item.month === lunarMonth && item.day === lunarDay);
         }
 
-        // Updated Sát Sư logic based on the new document
         function getSatSuDayChi(lunarMonth) {
-            // From "Ngày La Hầu Theo Từng Tháng"
             var satSuDayChi;
             switch(lunarMonth) {
                 case 1: satSuDayChi = 2; break;  // Dần: Hợi
@@ -808,7 +840,6 @@
         }
 
         function getSatSuHours(dayChi) {
-            // From "Giờ Sát Sư Hàng Ngày"
             var satSuHours = [
                 { dayChi: 0, hours: [1, 6] },  // Tý: Sửu, Ngọ
                 { dayChi: 1, hours: [5, 11] }, // Sửu: Tỵ, Hợi
@@ -1078,9 +1109,15 @@
             var year = parseInt(document.getElementById('lunar-year').value);
             var leap = parseInt(document.getElementById('lunar-leap').value);
             
-            // Relaxed validation to allow for lunar calendar specifics
+            // Basic validation for input values
             if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || month < 1 || month > 12 || year < 1900 || year > 2100) {
                 alert("Ngày tháng năm không hợp lệ!");
+                return;
+            }
+
+            // Validate if the lunar date is valid (checks number of days in the lunar month)
+            if (!isValidLunarDate(day, month, year, leap, 7)) {
+                alert("Ngày âm lịch không hợp lệ hoặc tháng nhuận không chính xác!");
                 return;
             }
             
