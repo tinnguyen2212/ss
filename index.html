@@ -690,7 +690,7 @@
             return "THÁNG " + LUNAR_MONTH_NAMES[lunarMonth];
         }
 
-       /* Mảng Can Chi */
+        /* Mảng Can Chi */
 var CAN = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
 var CHI = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
 var TUAN = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
@@ -1038,7 +1038,7 @@ function updateCalendarGrid(mm, yy) {
     document.getElementById('calendar-days').innerHTML = html;
     document.getElementById('month-title').textContent = "LỊCH ÂM THÁNG " + mm + "/" + yy;
 }
-// Biến toàn cục lưu trữ ngày hiện tại đang xem
+  // Biến toàn cục lưu trữ ngày hiện tại đang xem
 var currentViewDate = new Date();
 
 // Hàm cập nhật thời gian hiện tại
@@ -1190,4 +1190,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Cập nhật thời gian mỗi giây
     setInterval(updateTime, 1000);
-});
+});      
