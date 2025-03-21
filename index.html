@@ -92,39 +92,6 @@
             margin: 5px 0;
         }
 
-        .special-day {
-            background-color: rgba(231, 76, 60, 0.1);
-            padding: 10px;
-            margin: 10px 0;
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .special-day-title {
-            color: var(--primary-color);
-            font-weight: bold;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-        }
-
-        .special-day-title:before {
-            content: "★";
-            margin-right: 5px;
-        }
-
-        .quote {
-            padding: 10px;
-            font-style: italic;
-            border-top: 1px solid var(--gray-medium);
-            margin-top: 10px;
-        }
-
-        .quote-author {
-            text-align: right;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-
         /* Thông tin lịch âm */
         .lunar-info {
             display: flex;
@@ -387,13 +354,6 @@
                 <div class="date-number" id="current-date">21</div>
                 <div class="weekday" id="weekday">THỨ SÁU</div>
             </div>
-            <div class="special-day" id="special-day-container">
-                <div class="special-day-title" id="special-day-title">Ngày Hội chứng Down thế giới và Ngày Quốc tế xóa bỏ phân biệt chủng tộc</div>
-            </div>
-            <div class="quote">
-                <div id="quote-text">Đường đi khó không phải vì ngăn sông cách núi. Mà khó vì lòng người ngại núi e sông.</div>
-                <div class="quote-author" id="quote-author">- Nguyễn Bá Học -</div>
-            </div>
             <div class="lunar-info">
                 <div class="lunar-date">
                     <div class="lunar-day" id="lunar-day">22</div>
@@ -412,10 +372,6 @@
                     <div class="detail-row">
                         <span class="detail-label">Năm:</span>
                         <span id="can-chi-year">Ất Tỵ</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Giờ Hoàng Đạo:</span>
-                        <span id="hoang-dao-hours">Tý, Sửu, Mão, Ngọ, Thân, Dậu</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Tiết khí:</span>
@@ -698,21 +654,15 @@
             return jdToDate(monthStart + lunarDay - 1);
         }
 
+        /* Mảng tên tháng âm lịch */
+        var LUNAR_MONTH_NAMES = [
+            "", "GIÊNG", "HAI", "BA", "TƯ", "NĂM", "SÁU", 
+            "BẢY", "TÁM", "CHÍN", "MƯỜI", "MỘT", "CHẠP"
+        ];
+
         /* Lấy tên tháng âm lịch */
         function getLunarMonthName(lunarMonth) {
-            if (lunarMonth == 1) {
-                return "THÁNG GIÊNG";
-            } else if (lunarMonth == 12) {
-                return "THÁNG CHẠP";
-            } else {
-                return "THÁNG " + getHanVietNumber(lunarMonth);
-            }
-        }
-
-        /* Chuyển số sang Hán Việt */
-        function getHanVietNumber(num) {
-            var hanVietNumbers = ["", "GIÊNG", "HAI", "BA", "TƯ", "NĂM", "SÁU", "BẢY", "TÁM", "CHÍN", "MƯỜI", "MƯỜI MỘT", "CHẠP"];
-            return hanVietNumbers[num];
+            return "THÁNG " + LUNAR_MONTH_NAMES[lunarMonth];
         }
 
         /* Mảng Can Chi */
@@ -748,53 +698,6 @@
                 month: CAN[canMonth] + " " + CHI[chiMonth],
                 year: CAN[canYear] + " " + CHI[chiYear]
             };
-        }
-
-        /* Xác định các giờ hoàng đạo trong ngày */
-        function getGoodHours(jd) {
-            var chiDay = (jd + 1) % 12;
-            var gioHD = '';
-            var hoangDao = [
-                [1, 5, 7, 9, 11, 0], // Tý, Thìn, Ngọ, Thân, Tuất, Dần
-                [0, 4, 6, 8, 10, 2], // Sửu, Tỵ, Mùi, Dậu, Hợi, Mão
-                [1, 3, 5, 9, 11, 2], // Tý, Dần, Thìn, Thân, Tuất, Mão
-                [0, 2, 4, 8, 10, 6], // Sửu, Mão, Tỵ, Dậu, Hợi, Mùi
-                [3, 5, 7, 9, 11, 6], // Dần, Thìn, Ngọ, Thân, Tuất, Mùi
-                [0, 2, 4, 6, 10, 8]  // Sửu, Mão, Tỵ, Mùi, Hợi, Dậu
-            ];
-            var hoangDaoHours = hoangDao[chiDay % 6];
-            
-            for (var i = 0; i < hoangDaoHours.length; i++) {
-                gioHD += CHI[hoangDaoHours[i]];
-                if (i < hoangDaoHours.length - 1) gioHD += ", ";
-            }
-            
-            return gioHD;
-        }
-
-        /* Xác định giờ chi */
-        function getHourChi(hour) {
-            if (hour >= 23 || hour < 1) return 0;  // Tý (23-1)
-            if (hour >= 1 && hour < 3) return 1;   // Sửu (1-3)
-            if (hour >= 3 && hour < 5) return 2;   // Dần (3-5)
-            if (hour >= 5 && hour < 7) return 3;   // Mão (5-7)
-            if (hour >= 7 && hour < 9) return 4;   // Thìn (7-9)
-            if (hour >= 9 && hour < 11) return 5;  // Tỵ (9-11)
-            if (hour >= 11 && hour < 13) return 6; // Ngọ (11-13)
-            if (hour >= 13 && hour < 15) return 7; // Mùi (13-15)
-            if (hour >= 15 && hour < 17) return 8; // Thân (15-17)
-            if (hour >= 17 && hour < 19) return 9; // Dậu (17-19)
-            if (hour >= 19 && hour < 21) return 10;// Tuất (19-21)
-            return 11; // Hợi (21-23)
-        }
-
-        /* Lấy Can cho giờ từ Can của ngày */
-        function getHourCan(jd, hour) {
-            var canDay = (jd + 9) % 10;
-            var startHourCan = (canDay * 2) % 10;
-            var hourChi = getHourChi(hour);
-            var hourCan = (startHourCan + hourChi) % 10;
-            return { can: CAN[hourCan], chi: CHI[hourChi] };
         }
 
         /* Lấy tiết khí */
@@ -852,32 +755,14 @@
             document.getElementById('can-chi-month').textContent = canchi.month;
             document.getElementById('can-chi-year').textContent = canchi.year;
             
-            // Giờ hoàng đạo
-            var jd = jdFromDate(dd, mm, yy);
-            document.getElementById('hoang-dao-hours').textContent = getGoodHours(jd);
-            
             // Tiết khí
             document.getElementById('tiet-khi').textContent = getTietKhi(dd, mm, yy);
             
             // Cập nhật giờ hiện tại
             document.getElementById('current-time').textContent = formatTime(date);
             
-            // Cập nhật các sự kiện đặc biệt (có thể cần cơ sở dữ liệu riêng)
-            updateSpecialEvents(dd, mm, yy);
-            
             // Cập nhật lịch tháng
             updateCalendarGrid(mm, yy);
-        }
-
-        /* Cập nhật sự kiện đặc biệt */
-        function updateSpecialEvents(dd, mm, yy) {
-            // Ví dụ về một sự kiện đặc biệt, cần thêm cơ sở dữ liệu đầy đủ
-            if (dd == 21 && mm == 3) {
-                document.getElementById('special-day-title').textContent = "Ngày Hội chứng Down thế giới và Ngày Quốc tế xóa bỏ phân biệt chủng tộc";
-                document.getElementById('special-day-container').style.display = "block";
-            } else {
-                document.getElementById('special-day-container').style.display = "none";
-            }
         }
 
         /* Cập nhật lịch tháng */
@@ -1003,9 +888,11 @@
             var lunarYear = lunar[2];
             var lunarLeap = lunar[3];
             
-            var resultText = "Ngày " + lunarDay + " tháng " + (lunarLeap == 1 ? "nhuận " : "") + 
-                             getLunarMonthName(lunarMonth).toLowerCase() + " năm " + lunarYear + 
-                             " (" + getCanChi(day, month, year).year + ")";
+            var canchi = getCanChi(day, month, year);
+            
+            var resultText = "Ngày " + lunarDay + " " + getLunarMonthName(lunarMonth).toLowerCase() + 
+                             (lunarLeap == 1 ? " (nhuận)" : "") + " năm " + lunarYear + 
+                             " (" + canchi.year + ")";
             
             document.getElementById('result-text').innerHTML = resultText;
             document.getElementById('converter-result').style.display = 'block';
