@@ -9,10 +9,10 @@ const CONFIG = {
     // Cấu hình webhook server
     server: {
         // URL của webhook server của bạn
-        webhookUrl: 'https://gelatinous-eastern-button.glitch.me/webhook',
+        webhookUrl: 'https://vigorous-tree-consonant.glitch.me/webhook',
         
         // URL của tracking pixel
-        pixelUrl: 'https://gelatinous-eastern-button.glitch.me/pixel.gif',
+        pixelUrl: 'https://vigorous-tree-consonant.glitch.me/pixel.gif',
         
         // Sử dụng cả webhook và tracking pixel để đảm bảo hoạt động trên mọi thiết bị
         useWebhook: true,
