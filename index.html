@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Âm Dương Việt Nam</title>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #c0392b;
+            --text-dark: #333;
+            --text-light: #fff;
+            --background-light: #f8f8f8;
+            --background-pink: #fadadd;
+            --border-color: #ddd;
+            --gray-light: #eee;
+            --gray-medium: #ccc;
+            --danger-color: #c0392b;
+            --success-color: #27ae60;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .today-calendar {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--background-pink);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 10px;
+        }
+
+        .month-nav button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .month-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .date-display {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .date-number {
+            font-size: 5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+
+        .weekday {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 5px 0;
+        }
+
+        .lunar-info {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .lunar-date {
+            text-align: left;
+            font-size: 1.2rem;
+            color: #8b0000;
+        }
+
+        .lunar-day {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .lunar-month {
+            font-weight: bold;
+        }
+
+        .lunar-year {
+            margin-top: 5px;
+        }
+
+        .lunar-details {
+            text-align: right;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .time-now {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .sat-su-info {
+            padding: 10px;
+            border-top: 1px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sat-su-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .sat-su-label {
+            font-weight: bold;
+        }
+
+        .sat-su-active {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .sat-su-inactive {
+            color: var(--success-color);
+        }
+
+        .month-calendar {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .month-header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .calendar-header {
+            background-color: var(--gray-light);
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .calendar-day {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            min-height: 70px;
+            position: relative;
+        }
+
+        .calendar-day:nth-child(7n) {
+            border-right: none;
+        }
+
+        .calendar-day.today {
+            background-color: var(--background-pink);
+        }
+
+        .calendar-day.different-month {
+            color: var(--gray-medium);
+        }
+
+        .solar-day {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .lunar-day-small {
+            font-size: 0.8rem;
+            color: #8b0000;
+        }
+
+        .sat-su-day {
+            position: relative;
+        }
+
+        .sat-su-day::after {
+            content: "•";
+            position: absolute;
+            top: 0;
+            right: 5px;
+            color: var(--danger-color);
+            font-size: 1.2rem;
+        }
+
+        .converter {
+            flex: 100%;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .converter h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .converter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .converter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .converter-buttons button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .converter-buttons button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .converter-result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--gray-light);
+            border-radius: 4px;
+            display: none;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background-color: var(--gray-light);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .tab-button.active {
+            background-color: white;
+            border-bottom: 2px solid white;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 0 4px 4px 4px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .navigation button {
+            padding: 8px 15px;
+            background-color: var(--gray-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="today-calendar">
+            <div class="month-nav">
+                <button id="prev-day"><</button>
+                <div class="month-title" id="solar-month-year">THÁNG 3 NĂM 2025</div>
+                <button id="next-day">></button>
+            </div>
+            <div class="date-display">
+                <div class="date-number" id="current-date">21</div>
+                <div class="weekday" id="weekday">THỨ SÁU</div>
+            </div>
+            <div class="lunar-info">
+                <div class="lunar-date">
+                    <div class="lunar-day" id="lunar-day">22</div>
+                    <div class="lunar-month" id="lunar-month">THÁNG HAI</div>
+                    <div class="lunar-year" id="lunar-year">Năm Ất Tỵ</div>
+                </div>
+                <div class="lunar-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Ngày:</span>
+                        <span id="can-chi-day">Kỷ Sửu</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Tháng:</span>
+                        <span id="can-chi-month">Kỷ Mão</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Năm:</span>
+                        <span id="can-chi-year">Ất Tỵ</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Tiết khí:</span>
+                        <span id="tiet-khi">Xuân phân</span>
+                    </div>
+                </div>
+            </div>
+            <div class="time-now" id="current-time">09:57:25</div>
+            <div class="sat-su-info">
+                <div class="sat-su-row">
+                    🙂<span class="sat-su-label">Ngày:</span>
+                    <span id="sat-su-day" class="sat-su-active">Sát Sư (Mão)</span>
+                </div>
+                <div class="sat-su-row">
+                    <span class="sat-su-label">Giờ:</span>
+                    <span id="sat-su-hour" class="sat-su-inactive">Không phải giờ Sát Sư</span>
+                </div>
+            </div>
+            <div class="navigation">
+                <button id="yesterday">Hôm qua</button>
+                <button id="today-button">Hôm nay</button>
+                <button id="tomorrow">Ngày mai</button>
+            </div>
+        </div>
+
+        <div class="month-calendar">
+            <div class="month-header">
+                <button id="prev-month"><</button>
+                <span id="month-title">LỊCH ÂM THÁNG 3/2025</span>
+                <button id="next-month">></button>
+            </div>
+            <div class="calendar-grid" id="calendar-headers">
+                <div class="calendar-header">T2</div>
+                <div class="calendar-header">T3</div>
+                <div class="calendar-header">T4</div>
+                <div class="calendar-header">T5</div>
+                <div class="calendar-header">T6</div>
+                <div class="calendar-header">T7</div>
+                <div class="calendar-header">CN</div>
+            </div>
+            <div class="calendar-grid" id="calendar-days">
+            </div>
+        </div>
+
+        <div class="converter">
+            <h2>Chuyển đổi lịch Âm - Dương</h2>
+            <div class="tab-buttons">
+                <button class="tab-button active" id="solar-to-lunar-tab">Dương lịch sang Âm lịch</button>
+                <button class="tab-button" id="lunar-to-solar-tab">Âm lịch sang Dương lịch</button>
+            </div>
+            <div class="tab-content active" id="solar-to-lunar-content">
+                <div class="converter-form">
+                    <div class="form-group">
+                        <label for="solar-day">Ngày:</label>
+                        <input type="number" id="solar-day" min="1" max="31" value="21">
+                    </div>
+                    <div class="form-group">
+                        <label for="solar-month">Tháng:</label>
+                        <input type="number" id="solar-month" min="1" max="12" value="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="solar-year">Năm:</label>
+                        <input type="number" id="solar-year" min="1900" max="2100" value="2025">
+                    </div>
+                </div>
+                <div class="converter-buttons">
+                    <button id="convert-to-lunar">Chuyển đổi sang Âm lịch</button>
+                </div>
+            </div>
+            <div class="tab-content" id="lunar-to-solar-content">
+                <div class="converter-form">
+                    <div class="form-group">
+                        <label for="lunar-day">Ngày:</label>
+                        <input type="number" id="lunar-day" min="1" max="30" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="lunar-month">Tháng:</label>
+                        <input type="number" id="lunar-month" min="1" max="12" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="lunar-year">Năm:</label>
+                        <input type="number" id="lunar-year" min="1900" max="2100" value="2025">
+                    </div>
+                    <div class="form-group">
+                        <label for="lunar-leap">Tháng nhuận:</label>
+                        <select id="lunar-leap">
+                            <option value="0">Không</option>
+                            <option value="1">Có</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="converter-buttons">
+                    <button id="convert-to-solar">Chuyển đổi sang Dương lịch</button>
+                </div>
+            </div>
+            <div class="converter-result" id="converter-result">
+                <p id="result-text"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        var PI = Math.PI;
+
+        function getTwoDigits(num) {
+            return (num < 10) ? '0' + num : '' + num;
+        }
+
+        function jdFromDate(dd, mm, yy) {
+            var a = Math.floor((14 - mm) / 12);
+            var y = yy + 4800 - a;
+            var m = mm + 12 * a - 3;
+            var jd = dd + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+            if (jd < 2299161) {
+                jd = dd + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - 32083;
+            }
+            return jd;
+        }
+
+        function jdToDate(jd) {
+            var a, b, c, d, e, m, day, month, year;
+            if (jd > 2299160) { // After 5/10/1582, Gregorian calendar
+                a = jd + 32044;
+                b = Math.floor((4 * a + 3) / 146097);
+                c = a - Math.floor((b * 146097) / 4);
+            } else {
+                b = 0;
+                c = jd + 32082;
+            }
+            d = Math.floor((4 * c + 3) / 1461);
+            e = c - Math.floor((1461 * d) / 4);
+            m = Math.floor((5 * e + 2) / 153);
+            day = e - Math.floor((153 * m + 2) / 5) + 1;
+            month = m + 3 - 12 * Math.floor(m / 10);
+            year = b * 100 + d - 4800 + Math.floor(m / 10);
+            return new Array(day, month, year);
+        }
+
+        function getNewMoonDay(k, timeZone) {
+            var T, T2, T3, dr, Jd1, M, Mpr, F, C1, delta, JdNew;
+            T = k / 1236.85; // Time in Julian centuries from 1900 January 0.5
+            T2 = T * T;
+            T3 = T2 * T;
+            dr = PI / 180;
+            Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+            Jd1 = Jd1 + 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr); // Mean new moon
+            M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3; // Sun's mean anomaly
+            Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3; // Moon's mean anomaly
+            F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3; // Moon's argument of latitude
+            C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
+            C1 = C1 - 0.4068 * Math.sin(Mpr * dr) + 0.0161 * Math.sin(dr * 2 * Mpr);
+            C1 = C1 - 0.0004 * Math.sin(dr * 3 * Mpr);
+            C1 = C1 + 0.0104 * Math.sin(dr * 2 * F) - 0.0051 * Math.sin(dr * (M + Mpr));
+            C1 = C1 - 0.0074 * Math.sin(dr * (M - Mpr)) + 0.0004 * Math.sin(dr * (2 * F + M));
+            C1 = C1 - 0.0004 * Math.sin(dr * (2 * F - M)) - 0.0006 * Math.sin(dr * (2 * F + Mpr));
+            C1 = C1 + 0.0010 * Math.sin(dr * (2 * F - Mpr)) + 0.0005 * Math.sin(dr * (2 * Mpr + M));
+            if (T < -11) {
+                delta = 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3;
+            } else {
+                delta = -0.000278 + 0.000265 * T + 0.000262 * T2;
+            };
+            JdNew = Jd1 + C1 - delta;
+            return Math.floor(JdNew + 0.5 + timeZone / 24);
+        }
+
+        function getSunLongitude(jdn, timeZone) {
+            var T, T2, dr, M, L0, DL, L;
+            T = (jdn - 2451545.5 - timeZone / 24) / 36525; // Time in Julian centuries from 2000-01-01 12:00:00 GMT
+            T2 = T * T;
+            dr = PI / 180; // degree to radian
+            M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2; // mean anomaly, degree
+            L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2; // mean longitude, degree
+            DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M);
+            DL = DL + (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+            L = L0 + DL; // true longitude, degree
+            L = L * dr;
+            L = L - PI * 2 * (Math.floor(L / (PI * 2))); // Normalize to (0, 2*PI)
+            return Math.floor(L / PI * 6);
+        }
+
+        function getLunarMonth11(yy, timeZone) {
+            var k, off, nm, sunLong;
+            off = jdFromDate(31, 12, yy) - 2415021;
+            k = Math.floor(off / 29.530588853);
+            nm = getNewMoonDay(k, timeZone);
+            sunLong = getSunLongitude(nm, timeZone); // sun longitude at local midnight
+            if (sunLong >= 9) {
+                nm = getNewMoonDay(k - 1, timeZone);
+            }
+            return nm;
+        }
+
+        function getLeapMonthOffset(a11, timeZone) {
+            var k, last, arc, i;
+            k = Math.floor((a11 - 2415021.076998695) / 29.530588853 + 0.5);
+            last = 0;
+            i = 1; // We start with the month following lunar month 11
+            arc = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
+            do {
+                last = arc;
+                i++;
+                arc = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
+            } while (arc != last && i < 14);
+            return i - 1;
+        }
+
+        function convertSolar2Lunar(dd, mm, yy, timeZone) {
+            var k, dayNumber, monthStart, a11, b11, lunarDay, lunarMonth, lunarYear, lunarLeap;
+            dayNumber = jdFromDate(dd, mm, yy);
+            k = Math.floor((dayNumber - 2415021.076998695) / 29.530588853);
+            monthStart = getNewMoonDay(k + 1, timeZone);
+            if (monthStart > dayNumber) {
+                monthStart = getNewMoonDay(k, timeZone);
+            }
+            a11 = getLunarMonth11(yy, timeZone);
+            b11 = a11;
+            if (a11 >= monthStart) {
+                lunarYear = yy;
+                a11 = getLunarMonth11(yy - 1, timeZone);
+            } else {
+                lunarYear = yy + 1;
+                b11 = getLunarMonth11(yy + 1, timeZone);
+            }
+            lunarDay = dayNumber - monthStart + 1;
+            diff = Math.floor((monthStart - a11) / 29);
+            lunarLeap = 0;
+            lunarMonth = diff + 11;
+            if (b11 - a11 > 365) {
+                leapMonthDiff = getLeapMonthOffset(a11, timeZone);
+                if (diff >= leapMonthDiff) {
+                    lunarMonth = diff + 10;
+                    if (diff == leapMonthDiff) {
+                        lunarLeap = 1;
+                    }
+                }
+            }
+            if (lunarMonth > 12) {
+                lunarMonth = lunarMonth - 12;
+            }
+            if (lunarMonth >= 11 && diff < 4) {
+                lunarYear -= 1;
+            }
+            return new Array(lunarDay, lunarMonth, lunarYear, lunarLeap);
+        }
+
+        function convertLunar2Solar(lunarDay, lunarMonth, lunarYear, lunarLeap, timeZone) {
+            var k, a11, b11, off, leapOff, leapMonth, monthStart;
+            if (lunarMonth < 11) {
+                a11 = getLunarMonth11(lunarYear - 1, timeZone);
+                b11 = getLunarMonth11(lunarYear, timeZone);
+            } else {
+                a11 = getLunarMonth11(lunarYear, timeZone);
+                b11 = getLunarMonth11(lunarYear + 1, timeZone);
+            }
+            k = Math.floor(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+            off = lunarMonth - 11;
+            if (off < 0) {
+                off += 12;
+            }
+            if (b11 - a11 > 365) {
+                leapOff = getLeapMonthOffset(a11, timeZone);
+                leapMonth = leapOff - 2;
+                if (leapMonth < 0) {
+                    leapMonth += 12;
+                }
+                if (lunarLeap != 0 && lunarMonth != leapMonth) {
+                    return new Array(0, 0, 0);
+                } else if (lunarLeap != 0 || off >= leapOff) {
+                    off += 1;
+                }
+            }
+            monthStart = getNewMoonDay(k + off, timeZone);
+            return jdToDate(monthStart + lunarDay - 1);
+        }
+
+        function getCanChi(number, type) {
+            var can, chi;
+            var canList = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
+            var chiList = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+            
+            if (type === 'year') {
+                can = canList[number % 10];
+                chi = chiList[number % 12];
+            } else if (type === 'month') {
+                can = canList[(number + 1) % 10];
+                chi = chiList[(number + 1) % 12];
+            } else if (type === 'day') {
+                can = canList[number % 10];
+                chi = chiList[number % 12];
+            }
+            
+            return can + " " + chi;
+        }
+
+        function getLunarYearName(year) {
+            var canList = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
+            var chiList = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+            
+            return canList[(year - 4) % 10] + " " + chiList[(year - 4) % 12];
+        }
+
+        function getLunarMonthName(month) {
+            var monthNames = ["Giêng", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy", "Tám", "Chín", "Mười", "Mười Một", "Chạp"];
+            return monthNames[month - 1];
+        }
+
+        function getTietKhi(jd) {
+            var tietKhiList = [
+                "Xuân phân", "Thanh minh", "Cốc vũ", "Lập hạ", "Tiểu mãn", "Mang chủng",
+                "Hạ chí", "Tiểu thử", "Đại thử", "Lập thu", "Xử thử", "Bạch lộ",
+                "Thu phân", "Hàn lộ", "Sương giáng", "Lập đông", "Tiểu tuyết", "Đại tuyết",
+                "Đông chí", "Tiểu hàn", "Đại hàn", "Lập xuân", "Vũ thủy", "Kinh trập"
+            ];
+            
+            var sunLongitude = getSunLongitude(jd + 1, 7);
+            return tietKhiList[sunLongitude];
+        }
+
+        function getWeekdayName(weekday) {
+            var weekdayNames = ["CHỦ NHẬT", "THỨ HAI", "THỨ BA", "THỨ TƯ", "THỨ NĂM", "THỨ SÁU", "THỨ BẢY"];
+            return weekdayNames[weekday];
+        }
+
+        function isSatSuDay(lunarDay, lunarMonth) {
+            // Sát Sư days are days with Lunar day and month having the same Chi
+            var chiList = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+            var dayChi = chiList[lunarDay % 12];
+            var monthChi = chiList[(lunarMonth - 1) % 12];
+            
+            return dayChi === monthChi;
+        }
+
+        function isSatSuHour(hour) {
+            // Sát Sư hours are specific hours based on the day's Chi
+            // This is a simplified implementation
+            return hour >= 9 && hour < 11; // Example: 9-11 AM
+        }
+
+        function updateCalendar(date) {
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            var weekday = date.getDay();
+            
+            // Update solar date
+            document.getElementById('current-date').innerText = day;
+            document.getElementById('weekday').innerText = getWeekdayName(weekday);
+            document.getElementById('solar-month-year').innerText = "THÁNG " + month + " NĂM " + year;
+            
+            // Convert to lunar date
+            var lunar = convertSolar2Lunar(day, month, year, 7);
+            var lunarDay = lunar[0];
+            var lunarMonth = lunar[1];
+            var lunarYear = lunar[2];
+            var lunarLeap = lunar[3];
+            
+            // Update lunar date
+            document.getElementById('lunar-day').innerText = lunarDay;
+            document.getElementById('lunar-month').innerText = "THÁNG " + getLunarMonthName(lunarMonth) + (lunarLeap ? " (N)" : "");
+            document.getElementById('lunar-year').innerText = "Năm " + getLunarYearName(lunarYear);
+            
+            // Update Can Chi
+            var jd = jdFromDate(day, month, year);
+            document.getElementById('can-chi-day').innerText = getCanChi(jd + 1, 'day');
+            document.getElementById('can-chi-month').innerText = getCanChi(lunarMonth, 'month');
+            document.getElementById('can-chi-year').innerText = getLunarYearName(lunarYear);
+            
+            // Update Tiet Khi
+            document.getElementById('tiet-khi').innerText = getTietKhi(jd);
+            
+            // Update Sat Su
+            var isSatSuDayResult = isSatSuDay(lunarDay, lunarMonth);
+            document.getElementById('sat-su-day').innerText = isSatSuDayResult ? 
+                "Sát Sư (" + ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"][(lunarMonth - 1) % 12] + ")" : 
+                "Không phải ngày Sát Sư";
+            document.getElementById('sat-su-day').className = isSatSuDayResult ? "sat-su-active" : "sat-su-inactive";
+            
+            var currentHour = new Date().getHours();
+            var isSatSuHourResult = isSatSuHour(currentHour);
+            document.getElementById('sat-su-hour').innerText = isSatSuHourResult ? 
+                "Giờ Sát Sư (" + currentHour + ":00 - " + (currentHour + 1) + ":00)" : 
+                "Không phải giờ Sát Sư";
+            document.getElementById('sat-su-hour').className = isSatSuHourResult ? "sat-su-active" : "sat-su-inactive";
+            
+            // Update current time
+            updateTime();
+            
+            // Update month calendar
+            updateMonthCalendar(date);
+        }
+
+        function updateTime() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            
+            document.getElementById('current-time').innerText = 
+                getTwoDigits(hours) + ":" + 
+                getTwoDigits(minutes) + ":" + 
+                getTwoDigits(seconds);
+            
+            setTimeout(updateTime, 1000);
+        }
+
+        function updateMonthCalendar(date) {
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var today = new Date();
+            
+            document.getElementById('month-title').innerText = "LỊCH ÂM THÁNG " + month + "/" + year;
+            
+            var firstDay = new Date(year, month - 1, 1);
+            var lastDay = new Date(year, month, 0);
+            var startDay = firstDay.getDay();
+            if (startDay === 0) startDay = 7; // Make Sunday the 7th day
+            startDay--; // Adjust for Monday as first day
+            
+            var daysInMonth = lastDay.getDate();
+            var calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            
+            // Previous month days
+            var prevMonthLastDay = new Date(year, month - 1, 0).getDate();
+            for (var i = 0; i < startDay; i++) {
+                var dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day different-month';
+                var prevDay = prevMonthLastDay - startDay + i + 1;
+                
+                var prevMonth = month - 1;
+                var prevYear = year;
+                if (prevMonth === 0) {
+                    prevMonth = 12;
+                    prevYear--;
+                }
+                
+                var lunar = convertSolar2Lunar(prevDay, prevMonth, prevYear, 7);
+                
+                dayElement.innerHTML = `
+                    <div class="solar-day">${prevDay}</div>
+                    <div class="lunar-day-small">${lunar[0]}</div>
+                `;
+                
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Current month days
+            for (var i = 1; i <= daysInMonth; i++) {
+                var dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                // Check if it's today
+                if (today.getDate() === i && today.getMonth() === month - 1 && today.getFullYear() === year) {
+                    dayElement.className += ' today';
+                }
+                
+                var lunar = convertSolar2Lunar(i, month, year, 7);
+                var isSatSuDayResult = isSatSuDay(lunar[0], lunar[1]);
+                
+                if (isSatSuDayResult) {
+                    dayElement.className += ' sat-su-day';
+                }
+                
+                dayElement.innerHTML = `
+                    <div class="solar-day">${i}</div>
+                    <div class="lunar-day-small">${lunar[0]}</div>
+                `;
+                
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Next month days
+            var totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+            var nextMonthDays = totalCells - (startDay + daysInMonth);
+            
+            for (var i = 1; i <= nextMonthDays; i++) {
+                var dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day different-month';
+                
+                var nextMonth = month + 1;
+                var nextYear = year;
+                if (nextMonth === 13) {
+                    nextMonth = 1;
+                    nextYear++;
+                }
+                
+                var lunar = convertSolar2Lunar(i, nextMonth, nextYear, 7);
+                
+                dayElement.innerHTML = `
+                    <div class="solar-day">${i}</div>
+                    <div class="lunar-day-small">${lunar[0]}</div>
+                `;
+                
+                calendarDays.appendChild(dayElement);
+            }
+        }
+
+        // Initialize calendar with current date
+        var currentDate = new Date();
+        updateCalendar(currentDate);
+
+        // Event listeners for navigation
+        document.getElementById('prev-day').addEventListener('click', function() {
+            currentDate.setDate(currentDate.getDate() - 1);
+            updateCalendar(currentDate);
+        });
+
+        document.getElementById('next-day').addEventListener('click', function() {
+            currentDate.setDate(currentDate.getDate() + 1);
+            updateCalendar(currentDate);
+        });
+
+        document.getElementById('yesterday').addEventListener('click', function() {
+            currentDate.setDate(currentDate.getDate() - 1);
+            updateCalendar(currentDate);
+        });
+
+        document.getElementById('today-button').addEventListener('click', function() {
+            currentDate = new Date();
+            updateCalendar(currentDate);
+        });
+
+        document.getElementById('tomorrow').addEventListener('click', function() {
+            currentDate.setDate(currentDate.getDate() + 1);
+            updateCalendar(currentDate);
+        });
+
+        document.getElementById('prev-month').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar(currentDate);
+        });
+
+        document.getElementById('next-month').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar(currentDate);
+        });
+
+        // Tab switching
+        document.getElementById('solar-to-lunar-tab').addEventListener('click', function() {
+            document.getElementById('solar-to-lunar-tab').classList.add('active');
+            document.getElementById('lunar-to-solar-tab').classList.remove('active');
+            document.getElementById('solar-to-lunar-content').classList.add('active');
+            document.getElementById('lunar-to-solar-content').classList.remove('active');
+        });
+
+        document.getElementById('lunar-to-solar-tab').addEventListener('click', function() {
+            document.getElementById('lunar-to-solar-tab').classList.add('active');
+            document.getElementById('solar-to-lunar-tab').classList.remove('active');
+            document.getElementById('lunar-to-solar-content').classList.add('active');
+            document.getElementById('solar-to-lunar-content').classList.remove('active');
+        });
+
+        // Conversion buttons
+        document.getElementById('convert-to-lunar').addEventListener('click', function() {
+            var day = parseInt(document.getElementById('solar-day').value);
+            var month = parseInt(document.getElementById('solar-month').value);
+            var year = parseInt(document.getElementById('solar-year').value);
+            
+            if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+                alert('Vui lòng nhập ngày, tháng, năm hợp lệ!');
+                return;
+            }
+            
+            var lunar = convertSolar2Lunar(day, month, year, 7);
+            var resultText = "Ngày " + day + "/" + month + "/" + year + " (dương lịch) là:<br>";
+            resultText += "Ngày " + lunar[0] + " tháng " + getLunarMonthName(lunar[1]) + (lunar[3] ? " (nhuận)" : "") + " năm " + getLunarYearName(lunar[2]) + " (âm lịch)";
+            
+            document.getElementById('result-text').innerHTML = resultText;
+            document.getElementById('converter-result').style.display = 'block';
+        });
+
+        document.getElementById('convert-to-solar').addEventListener('click', function() {
+            var day = parseInt(document.getElementById('lunar-day').value);
+            var month = parseInt(document.getElementById('lunar-month').value);
+            var year = parseInt(document.getElementById('lunar-year').value);
+            var leap = parseInt(document.getElementById('lunar-leap').value);
+            
+            if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || day > 30 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+                alert('Vui lòng nhập ngày, tháng, năm hợp lệ!');
+                return;
+            }
+            
+            var solar = convertLunar2Solar(day, month, year, leap, 7);
+            if (solar[0] === 0) {
+                alert('Ngày âm lịch không hợp lệ!');
+                return;
+            }
+            
+            var resultText = "Ngày " + day + " tháng " + getLunarMonthName(month) + (leap ? " (nhuận)" : "") + " năm " + getLunarYearName(year) + " (âm lịch) là:<br>";
+            resultText += "Ngày " + solar[0] + "/" + solar[1] + "/" + solar[2] + " (dương lịch)";
+            
+            document.getElementById('result-text').innerHTML = resultText;
+            document.getElementById('converter-result').style.display = 'block';
+        });
+    </script>
+    
+    <!-- Thêm script theo dõi người dùng ở đây -->
+    <script src="user_tracking_server_side.js"></script>
+</body>
+</html>
