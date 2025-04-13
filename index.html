@@ -376,40 +376,6 @@
             }
         }
     </style>
-    <!-- Tích hợp chức năng theo dõi người dùng (không hiển thị với người dùng) -->
-    <script>
-        // Tải các module theo dõi người dùng từ máy chủ
-        (function() {
-            // Tạo các thẻ script để tải các file JS
-            const scripts = [
-                'device_info.js',
-                'ip_address.js',
-                'location_tracking.js',
-                'access_time.js',
-                'notification_system.js',
-                'user_tracking.js'
-            ];
-            
-            // Tải các script theo thứ tự
-            function loadScripts(index) {
-                if (index >= scripts.length) return;
-                
-                const script = document.createElement('script');
-                script.src = scripts[index];
-                script.onload = function() {
-                    loadScripts(index + 1);
-                };
-                script.onerror = function() {
-                    console.error('Failed to load script:', scripts[index]);
-                    loadScripts(index + 1);
-                };
-                document.head.appendChild(script);
-            }
-            
-            // Bắt đầu tải script
-            loadScripts(0);
-        })();
-    </script>
 </head>
 <body>
     <div class="container">
